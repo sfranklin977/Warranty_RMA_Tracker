@@ -1,0 +1,64 @@
+{% extends 'layouts/base.html' %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+<div class="stats-row">
+    <div class="stat-card">
+        <div>
+            <div class="stat-label">Total Claims</div>
+            <div class="stat-value">{{ total_claims }}</div>
+        </div>
+        <div class="stat-icon blue"><i class="fas fa-file-invoice"></i></div>
+    </div>
+    <div class="stat-card">
+        <div>
+            <div class="stat-label">New</div>
+            <div class="stat-value" style="color:var(--danger)">{{ new_count }}</div>
+        </div>
+        <div class="stat-icon red"><i class="fas fa-circle" style="font-size:12px"></i></div>
+    </div>
+    <div class="stat-card">
+        <div>
+            <div class="stat-label">Filed</div>
+            <div class="stat-value" style="color:var(--warning)">{{ filed_count }}</div>
+        </div>
+        <div class="stat-icon yellow"><i class="fas fa-circle" style="font-size:12px"></i></div>
+    </div>
+    <div class="stat-card">
+        <div>
+            <div class="stat-label">Paid</div>
+            <div class="stat-value" style="color:var(--success)">{{ paid_count }}</div>
+        </div>
+        <div class="stat-icon green"><i class="fas fa-circle" style="font-size:12px"></i></div>
+    </div>
+</div>
+<div class="legend-bar">
+    <span class="status-dot new"></span> <strong>New</strong> — not yet submitted
+    <span class="status-dot filed" style="margin-left:8px"></span> <strong>Filed</strong> — submitted to vendor
+    <span class="status-dot paid" style="margin-left:8px"></span> <strong>Paid</strong> — credit received
+</div>
+{% if total_amount > 0 %}
+<div style="text-align:center;margin-bottom:20px;font-size:13px;color:var(--text-muted);">
+    Total claimed: <strong style="color:var(--text);font-size:18px;">${{ total_amount|floatformat:2 }}</strong>
+</div>
+{% endif %}
+<div class="quick-row">
+    <div class="quick-card">
+        <div class="qc-icon" style="color:var(--primary)"><i class="fas fa-file-invoice"></i></div>
+        <h3>Warranty Claims</h3>
+        <p>Track and manage warranty claims with vendor submission info</p>
+        <div class="btn-row">
+            <a href="{% url 'claim_list' %}" class="btn btn-primary">View All Claims</a>
+            <a href="{% url 'claim_add' %}" class="btn btn-outline">Add New</a>
+        </div>
+    </div>
+    <div class="quick-card">
+        <div class="qc-icon" style="color:var(--success)"><i class="fas fa-box"></i></div>
+        <h3>Parts Returns</h3>
+        <p>Track vendor parts returns with RMA numbers and status</p>
+        <div class="btn-row">
+            <a href="{% url 'parts_return_list' %}" class="btn btn-success">View Returns</a>
+            <a href="{% url 'parts_return_add' %}" class="btn btn-outline">Add New</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

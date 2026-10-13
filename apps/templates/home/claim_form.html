@@ -1,0 +1,51 @@
+{% extends 'layouts/base.html' %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="form-card">
+    <h2>{{ title }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-section-title">Job &amp; Customer</div>
+        <div class="form-row cols-4">
+            <div class="form-group"><label class="form-label">Job Number</label>{{ form.job_number }}</div>
+            <div class="form-group"><label class="form-label">Tech Name</label>{{ form.tech_name }}</div>
+            <div class="form-group"><label class="form-label">Customer Name</label>{{ form.customer_name }}</div>
+            <div class="form-group"><label class="form-label">Client Address</label>{{ form.client_address }}</div>
+        </div>
+        <hr class="form-divider">
+        <div class="form-section-title">Equipment Info</div>
+        <div class="form-row cols-4">
+            <div class="form-group"><label class="form-label">Equipment Brand</label>{{ form.equipment_brand }}</div>
+            <div class="form-group"><label class="form-label">Unit Model #</label>{{ form.unit_model }}</div>
+            <div class="form-group"><label class="form-label">Unit Serial #</label>{{ form.unit_serial }}</div>
+            <div class="form-group"><label class="form-label">Warranty Type</label>{{ form.warranty_type }}</div>
+        </div>
+        <div class="form-row cols-3">
+            <div class="form-group"><label class="form-label">Type of Part</label>{{ form.part_type }}</div>
+            <div class="form-group"><label class="form-label">Equipment Location</label>{{ form.equipment_location }}</div>
+            <div class="form-group"><label class="form-label">Compressor Image URL</label>{{ form.compressor_image }}</div>
+        </div>
+        <div class="form-group"><label class="form-label">Diagnosis</label>{{ form.diagnosis }}</div>
+        <hr class="form-divider">
+        <div class="form-section-title">Claim Details</div>
+        <div class="form-row cols-3">
+            <div class="form-group"><label class="form-label">Claim Date</label>{{ form.claim_date }}</div>
+            <div class="form-group"><label class="form-label">Claim Amount ($)</label>{{ form.claim_amount }}</div>
+            <div class="form-group"><label class="form-label">Status</label>{{ form.status }}</div>
+        </div>
+        <hr class="form-divider">
+        <div class="form-section-title">Vendor / Submission</div>
+        <div class="form-row cols-4">
+            <div class="form-group"><label class="form-label">Vendor</label>{{ form.vendor }}</div>
+            <div class="form-group"><label class="form-label">Submission Method</label>{{ form.vendor_submission_method }}</div>
+            <div class="form-group"><label class="form-label">Confirmation #</label>{{ form.vendor_confirmation_number }}</div>
+            <div class="form-group"><label class="form-label">Submitted Date</label>{{ form.vendor_submitted_date }}</div>
+        </div>
+        <div class="form-group"><label class="form-label">Notes</label>{{ form.notes }}</div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+            <a href="{% url 'claim_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

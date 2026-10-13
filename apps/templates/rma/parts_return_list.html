@@ -1,0 +1,89 @@
+{% extends 'layouts/base.html' %}
+{% block page_title %}Parts Returns{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Vendor Parts Returns</h1>
+    <div class="header-actions">
+        <a href="{% url 'parts_return_template' %}" class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Template</a>
+        <a href="{% url 'parts_return_import' %}" class="btn btn-outline btn-sm"><i class="fas fa-upload"></i> Import CSV</a>
+        <a href="{% url 'parts_return_export' %}" class="btn btn-outline btn-sm"><i class="fas fa-file-csv"></i> Export CSV</a>
+        <a href="{% url 'parts_return_add' %}" class="btn btn-success"><i class="fas fa-plus"></i> Add Return</a>
+    </div>
+</div>
+<div class="table-card" style="overflow-x:auto;">
+    <table id="sortableTable">
+        <thead>
+            <tr>
+                <th class="sortable" onclick="sortTable(0)">Status <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(1)">Client <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(2)">Order # <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(3)">Part Amt <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(4)">Part Name <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(5)">Model # <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(6)">Serial # <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(7)">RMA # <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(8)">RMA Req. <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(9)">Returned <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(10)">Credit Recv'd <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(11)">RMA Credit <i class="fas fa-sort"></i></th>
+                <th class="sortable" onclick="sortTable(12)">Repl Ordered <i class="fas fa-sort"></i></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in returns %}
+            <tr>
+                <td class="{% if r.status == 'NEW' %}status-new{% elif r.status == 'FILED' %}status-filed{% else %}status-paid{% endif %}" data-sort="{{ r.status }}">
+                    <span class="status-dot {{ r.status|lower }}"></span> {{ r.get_status_display }}
+                </td>
+                <td data-sort="{{ r.client_name|default:'' }}">{{ r.client_name|default:"—" }}</td>
+                <td data-sort="{{ r.order_no|default:'' }}">{{ r.order_no|default:"—" }}</td>
+                <td class="amount" data-sort="{{ r.part_amt|default:0 }}">{% if r.part_amt %}${{ r.part_amt|floatformat:2 }}{% else %}—{% endif %}</td>
+                <td data-sort="{{ r.part_name|default:'' }}">{{ r.part_name|default:"—" }}</td>
+                <td data-sort="{{ r.model_no|default:'' }}">{{ r.model_no|default:"—" }}</td>
+                <td data-sort="{{ r.serial_no|default:'' }}">{{ r.serial_no|default:"—" }}</td>
+                <td data-sort="{{ r.rma_no|default:'' }}">{{ r.rma_no|default:"—" }}</td>
+                <td style="color:var(--text-muted);white-space:nowrap;" data-sort="{{ r.date_rma_requested|date:'Ymd'|default:'00000000' }}">{{ r.date_rma_requested|date:"m/d/Y"|default:"—" }}</td>
+                <td style="color:var(--text-muted);white-space:nowrap;" data-sort="{{ r.date_part_returned|date:'Ymd'|default:'00000000' }}">{{ r.date_part_returned|date:"m/d/Y"|default:"—" }}</td>
+                <td style="color:var(--text-muted);white-space:nowrap;" data-sort="{{ r.credit_received|date:'Ymd'|default:'00000000' }}">{{ r.credit_received|date:"m/d/Y"|default:"—" }}</td>
+                <td class="amount" data-sort="{{ r.rma_credit_received|default:0 }}">{% if r.rma_credit_received %}${{ r.rma_credit_received|floatformat:2 }}{% else %}—{% endif %}</td>
+                <td style="color:var(--text-muted);white-space:nowrap;" data-sort="{{ r.replacement_ordered_date|date:'Ymd'|default:'00000000' }}">{{ r.replacement_ordered_date|date:"m/d/Y"|default:"—" }}</td>
+                <td class="actions">
+                    <a href="{% url 'parts_return_edit' r.id %}" class="action-btn"><i class="fas fa-edit"></i></a>
+                    {% if user.is_superuser %}
+                    <a href="{% url 'parts_return_delete' r.id %}" class="action-btn danger" onclick="return confirm('Delete this return?')"><i class="fas fa-trash"></i></a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr class="empty-row">
+                <td colspan="14">No parts returns yet. <a href="{% url 'parts_return_add' %}" style="color:var(--primary)">Add one</a> or <a href="{% url 'parts_return_import' %}" style="color:var(--primary)">import a CSV</a>.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+var sortDirections = {};
+function sortTable(colIndex) {
+    var table = document.getElementById('sortableTable');
+    var tbody = table.querySelector('tbody');
+    var rows = Array.from(tbody.querySelectorAll('tr:not(.empty-row)'));
+    if (rows.length === 0) return;
+    var dir = sortDirections[colIndex] || 'asc';
+    dir = (dir === 'asc') ? 'desc' : 'asc';
+    sortDirections[colIndex] = dir;
+    rows.sort(function(a, b) {
+        var aVal = (a.cells[colIndex].getAttribute('data-sort') || a.cells[colIndex].textContent).trim();
+        var bVal = (b.cells[colIndex].getAttribute('data-sort') || b.cells[colIndex].textContent).trim();
+        var aNum = parseFloat(aVal), bNum = parseFloat(bVal);
+        if (!isNaN(aNum) && !isNaN(bNum)) { aVal = aNum; bVal = bNum; }
+        if (aVal < bVal) return dir === 'asc' ? -1 : 1;
+        if (aVal > bVal) return dir === 'asc' ? 1 : -1;
+        return 0;
+    });
+    rows.forEach(function(row) { tbody.appendChild(row); });
+}
+</script>
+{% endblock %}

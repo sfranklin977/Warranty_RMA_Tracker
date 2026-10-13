@@ -1,0 +1,68 @@
+{% extends 'layouts/base.html' %}
+{% load rma_filters %}
+{% block page_title %}Import RMA Spreadsheet{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Import RMA Spreadsheet</h1>
+    <div class="header-actions">
+        <a href="{% url 'parts_return_template' %}" class="btn btn-outline btn-sm"><i class="fas fa-download"></i> Download Template</a>
+        <a href="{% url 'parts_return_list' %}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to List</a>
+    </div>
+</div>
+
+{% if errors %}
+    {% for err in errors %}
+        <div class="alert alert-error"><span>{{ err }}</span></div>
+    {% endfor %}
+{% endif %}
+
+{% if preview_rows %}
+    <div class="table-card" style="margin-bottom:20px;">
+        <div class="table-header">
+            <h2>Preview ({{ preview_rows|length }} rows)</h2>
+        </div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        {% for h in headers %}<th>{{ h }}</th>{% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in preview_rows %}
+                    <tr>
+                        {% for h in headers %}
+                        <td>{{ row|get_item:h|default:"—" }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <form method="post" enctype="multipart/form-data" style="text-align:center;">
+        {% csrf_token %}
+        <input type="hidden" name="csv_file" value="{{ request.FILES.csv_file.name }}">
+        <input type="hidden" name="confirm" value="1">
+        <p style="color:var(--text-muted);margin-bottom:12px;">Looks good? Click confirm to import {{ preview_rows|length }} records.</p>
+        <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Confirm Import</button>
+        <a href="{% url 'parts_return_import' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+{% else %}
+    <div class="form-card" style="text-align:center;">
+        <div style="font-size:48px;color:var(--text-dim);margin-bottom:16px;"><i class="fas fa-cloud-upload-alt"></i></div>
+        <h2 style="margin-bottom:8px;">Upload CSV File</h2>
+        <p style="color:var(--text-muted);margin-bottom:20px;font-size:13px;">
+            Use the template above. Your CSV must have these columns:<br>
+            <code style="background:var(--bg);padding:2px 8px;border-radius:4px;font-size:11px;color:var(--text-dim);">
+                Client Name, Order NO., Part Amt, Part Name, Model No., Serial No., RMA No., Date RMA Requested, Date Part Returned, Credit Received, RMA Credit Received, Replacement Ordered Date
+            </code>
+        </p>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="margin-bottom:16px;">{{ form.csv_file }}</div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Preview &amp; Import</button>
+        </form>
+    </div>
+{% endif %}
+{% endblock %}

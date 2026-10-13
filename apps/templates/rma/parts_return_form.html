@@ -1,0 +1,37 @@
+{% extends 'layouts/base.html' %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="form-card">
+    <h2>{{ title }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-row cols-4">
+            <div class="form-group"><label class="form-label">Client Name</label>{{ form.client_name }}</div>
+            <div class="form-group"><label class="form-label">Order No.</label>{{ form.order_no }}</div>
+            <div class="form-group"><label class="form-label">Part Amt ($)</label>{{ form.part_amt }}</div>
+            <div class="form-group"><label class="form-label">Part Name</label>{{ form.part_name }}</div>
+        </div>
+        <div class="form-row cols-4">
+            <div class="form-group"><label class="form-label">Model No.</label>{{ form.model_no }}</div>
+            <div class="form-group"><label class="form-label">Serial No.</label>{{ form.serial_no }}</div>
+            <div class="form-group"><label class="form-label">RMA No.</label>{{ form.rma_no }}</div>
+            <div class="form-group"><label class="form-label">Status</label>{{ form.status }}</div>
+        </div>
+        <div class="form-row cols-3">
+            <div class="form-group"><label class="form-label">Date RMA Requested</label>{{ form.date_rma_requested }}</div>
+            <div class="form-group"><label class="form-label">Date Part Returned</label>{{ form.date_part_returned }}</div>
+            <div class="form-group"><label class="form-label">Credit Received Date</label>{{ form.credit_received }}</div>
+        </div>
+        <div class="form-row cols-3">
+            <div class="form-group"><label class="form-label">RMA Credit Received ($)</label>{{ form.rma_credit_received }}</div>
+            <div class="form-group"><label class="form-label">Replacement Ordered Date</label>{{ form.replacement_ordered_date }}</div>
+            <div class="form-group"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Notes</label>{{ form.notes }}</div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+            <a href="{% url 'parts_return_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

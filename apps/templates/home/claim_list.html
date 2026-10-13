@@ -1,0 +1,114 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<div class="header bg-primary pb-3">
+    <div class="container-fluid">
+        <div class="header-body">
+            <div class="row align-items-center py-2">
+                <div class="col-lg-6">
+                    <h6 class="h2 text-white d-inline-block mb-0">Warranty Claims</h6>
+                </div>
+                <div class="col-lg-6 text-right">
+                    <a href="{% url 'claim_add' %}" class="btn btn-success btn-sm">
+                        <i class="fas fa-plus mr-1"></i> Add Claim
+                    </a>
+                    <a href="{% url 'claim_export' %}" class="btn btn-outline-light btn-sm ml-1">
+                        <i class="fas fa-download mr-1"></i> Export CSV
+                    </a>
+                    <form method="post" action="{% url 'claim_sync_servicetitan' %}" style="display:inline;" onsubmit="return startSync(this)">
+                        {% csrf_token %}
+                        <button type="submit" id="sync-btn" class="btn btn-outline-light btn-sm ml-1">
+                            <i class="fas fa-sync mr-1"></i> Sync ServiceTitan
+                        </button>
+                        <div id="sync-progress" style="display:none; width:180px; height:6px; background:#fff3; border-radius:3px; vertical-align:middle; margin:0 8px;">
+                            <div id="sync-bar" style="width:10%; height:100%; background:#5e72e4; border-radius:3px; transition: width 0.3s;"></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid mt--3">
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-claims align-items-center">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Status</th>
+                        <th>Job #</th>
+                        <th>Customer</th>
+                        <th>Tech</th>
+                        <th>Date</th>
+                        <th>Warranty</th>
+                        <th>Part</th>
+                        <th>Diagnosis</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for claim in claims %}
+                    <tr>
+                        <td>
+                            {% if claim.status == 'NEW' %}
+                                <span class="status-dot new"></span> New
+                            {% elif claim.status == 'FILED' %}
+                                <span class="status-dot filed"></span> Filed
+                            {% else %}
+                                <span class="status-dot paid"></span> Paid
+                            {% endif %}
+                        </td>
+                        <td>{{ claim.job_number|default:"—" }}</td>
+                        <td>{{ claim.customer_name|default:"—" }}</td>
+                        <td>{{ claim.tech_name|default:"—" }}</td>
+                        <td>{{ claim.claim_date|date:"m/d/Y"|default:"—" }}</td>
+                        <td>{{ claim.warranty_type|default:"—" }}</td>
+                        <td>{{ claim.part_type|default:"—" }}</td>
+                        <td>{{ claim.diagnosis|truncatechars:40|default:"—" }}</td>
+                        <td class="text-right">
+                            <a href="{% url 'claim_edit' claim.id %}" class="btn btn-sm btn-outline-primary btn-sm-action">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% if user.is_superuser %}
+                            <a href="{% url 'claim_delete' claim.id %}" class="btn btn-sm btn-outline-danger btn-sm-action"
+                               onclick="return confirm('Delete this claim?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            No claims yet. <a href="{% url 'claim_add' %}">Add your first claim</a> or sync from ServiceTitan.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function startSync(form) {
+    var btn = document.getElementById('sync-btn');
+    var bar = document.getElementById('sync-progress');
+    var inner = document.getElementById('sync-bar');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-sync fa-spin mr-1"></i> Syncing...';
+    bar.style.display = 'inline-block';
+    var w = 10;
+    var timer = setInterval(function() {
+        w = Math.min(w + 15, 90);
+        inner.style.width = w + '%';
+    }, 600);
+    setTimeout(function() {
+        clearInterval(timer);
+        inner.style.width = '100%';
+    }, 8000);
+    return true;
+}
+</script>
+
+{% endblock %}
