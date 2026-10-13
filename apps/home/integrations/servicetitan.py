@@ -1,7 +1,7 @@
 
 import requests
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.conf import settings
 from django.utils import timezone
 
@@ -47,7 +47,7 @@ def _get_access_token():
     data = resp.json()
 
     _token_cache["token"] = data["access_token"]
-    _token_cache["expires_at"] = now + timezone.timedelta(seconds=data["expires_in"] - 60)
+    _token_cache["expires_at"] = now + timedelta(seconds=data["expires_in"] - 60)
     return _token_cache["token"]
 
 
